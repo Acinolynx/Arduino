@@ -1,21 +1,28 @@
-// Viral Science www.viralsciencecreativity.com www.youtube.com/c/viralscience
-// IOT Smart Plant Monitoring System
+
+// code dari Viral Science www.viralsciencecreativity.com www.youtube.com/c/viralscience
+// IOT Smart Plant Monitoring System dari arduino dan blynk
+#define BLYNK_TEMPLATE_ID "TMPL645H07bRL";
+#define BLYNK_TEMPLATE_NAME "Automatic Watering Device";
 #define BLYNK_PRINT Serial   
 #include <SPI.h>
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
-#include <SimpleTimer.h>
 #include <DHT.h>
 #define BLYNK_PRINT Serial
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #define ONE_WIRE_BUS D2
+#include <Blynk.h>
+
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
-char auth[] ="NRySwagjKNJky2iqtWunGcSRVl6h7rif";               //Authentication code sent by Blynk
-char ssid[] = "Pompa";                       //WiFi SSID
-char pass[] = "12345678";                       //WiFi Password
+
+char auth[] = "hftW0n19U8RFGE1A0R5oMdOZ4B8OzSTO";               //Kode template dari blynk
+char ssid[] = "Tes";                       //WiFi SSID
+char pass[] = "11223344";                      //WiFi Password
+
+WiFiClient client;
 
 #define sensorPin D3 
 int sensorState = 0;
@@ -23,19 +30,19 @@ int lastState = 0;
 #define DHTPIN 2    
 #define DHTTYPE DHT11     
 DHT dht(DHTPIN, DHTTYPE);
-SimpleTimer timer;
+BlynkTimer timer;
 void sendSensor()
 {
   float h = dht.readHumidity();
   float t = dht.readTemperature();
 
   if (isnan(h) || isnan(t)) {
-    Serial.println("Failed to read from DHT sensor!");
+    Serial.println("Gagal Membaca Dari Sensor DHT!");
     return;
   }
  
-  Blynk.virtualWrite(V5, h);  //V5 is for Humidity
-  Blynk.virtualWrite(V6, t);  //V6 is for Temperature
+  Blynk.virtualWrite(V5, h);  //V5 untuk kelembapan
+  Blynk.virtualWrite(V6, t);  //V6 untuk suhu
 }
 void setup()
 {
@@ -70,21 +77,20 @@ void loop()
 Serial.println(sensorState);
 
 if (sensorState == 1 && lastState == 0) {
-  Serial.println("needs water, send notification");
-  Blynk.notify("Water your plants");
+  Serial.println("Butuh Disiram!");
   lastState = 1;
   delay(1000);
-//send notification
+//kirim notifikasi
     
   } 
   else if (sensorState == 1 && lastState == 1) {
-    //do nothing, has not been watered yet
-  Serial.println("has not been watered yet");
+    //jangan lakukan apa apa, belum disiram
+  Serial.println("Belum Disiram");
   delay(1000);
   }
   else {
     //st
-    Serial.println("does not need water");
+    Serial.println("Tidak Perlu Disiram");
     lastState = 0;
     delay(1000);
   }
